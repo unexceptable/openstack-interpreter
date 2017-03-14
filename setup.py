@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 with open('requirements.txt') as f:
     required = f.readlines()
@@ -9,7 +9,7 @@ with open('README.rst') as file:
 setup(
     name='openstack-interpreter',
 
-    version='0.1.1',
+    version='0.1.3',
     description='A simple command to drop you into the python interpreter '
                 'with the openstack easy to setup.',
     long_description=long_description,
@@ -29,7 +29,7 @@ setup(
     ],
 
     keywords='openstack python interpreter clients',
-    packages=find_packages(),
+    py_modules=['openstack_interpreter'],
     install_requires=required,
     entry_points={
         'console_scripts': [
