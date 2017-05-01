@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+0.2.0
+-----
+
+* Major rework into an openstackclient plugin
 * Fixing import error
 * First version of OpenStackInterpreter
 * Initial commit
