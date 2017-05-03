@@ -1,9 +1,10 @@
 CHANGES
 =======
 
-0.2.1
+0.2.2
 -----
 
+* Reworking output module and adding docs
 * Typo fixes
 
 0.2.0

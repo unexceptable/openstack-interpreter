@@ -3,6 +3,8 @@ from IPython import embed
 from osc_lib.command import command
 
 from openstack_interpreter.common import output
+from openstack_interpreter.common import prompt  # noqa
+from openstack_interpreter.common.profile import timed  # noqa
 from openstack_interpreter.v1.interpreter import OpenStackInterpreter
 
 
@@ -26,25 +28,34 @@ class SetupOpenStackInterpreter(command.Command):
     def _check_auth_url(self):
         auth_url = self.app.client_manager.session.auth.auth_url
         if "v3" in auth_url:
-            output.print_yellow(
-                "WARNING: You are using a versioned Keystone URL.\n"
-                "It is recommended to set OS_AUTH_URL to be versionless,\n"
-                "and control the identity version with: "
-                "OS_IDENTITY_API_VERSION\n"
-                "If you don't, attempting to use the keystoneclient may "
-                "throw errors."
+            print(
+                output.style_text("WARNING: ", ['yellow', 'bold']) +
+                output.style_text(
+                    "You are using a versioned Keystone URL.\n"
+                    "It is recommended to set OS_AUTH_URL to be versionless,\n"
+                    "and control the identity version with: "
+                    "OS_IDENTITY_API_VERSION\n"
+                    "If you don't, attempting to use the keystoneclient may "
+                    "throw errors.",
+                    ['yellow']
                 )
+            )
         if "v2" in auth_url:
-            output.print_yellow(
-                "WARNING: You are using a deprecated Keystone version.\n"
-                "It is highly recommended that you switch to using v3\n"
-                "for your authentication.\n"
-                "It is also recommended to set OS_AUTH_URL to be versionless\n"
-                "and control the identity version with: "
-                "OS_IDENTITY_API_VERSION\n"
-                "If you don't, attempting to use the keystoneclient may "
-                "throw errors."
+            print(
+                output.style_text("WARNING: ", ['yellow', 'bold']) +
+                output.print_styled(
+                    "You are using a deprecated Keystone version.\n"
+                    "It is highly recommended that you switch to using v3\n"
+                    "for your authentication.\n"
+                    "It is also recommended to set OS_AUTH_URL to be "
+                    "versionless\n"
+                    "and control the identity version with: "
+                    "OS_IDENTITY_API_VERSION\n"
+                    "If you don't, attempting to use the keystoneclient may "
+                    "throw errors.",
+                    ['yellow']
                 )
+            )
 
     def take_action(self, parsed_args):
         self._check_auth_url()

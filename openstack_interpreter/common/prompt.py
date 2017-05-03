@@ -11,6 +11,10 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
+"""
+This module is focused on adding a prompt to some action where you want to be
+able to have something stop, and ask for input before moving on.
+"""
 
 
 from random import randint
@@ -52,7 +56,7 @@ def prompt_yes_no(question, default="no"):
 
 def prompt_safe(question):
     """Generate and print a random 4 digit int, user must type same number."""
-    safe_check = str(randint(1000, 9999))
+    safe_check = str(randint(0000, 9999))
     prompt = "\nType the following number to confirm: %s\n> " % safe_check
     sys.stdout.write(question + prompt)
     choice = raw_input().lower()

@@ -1,3 +1,6 @@
+"""
+This module is all about text formatting and output. Make text pretty!
+"""
 
 from fcntl import ioctl
 import os
@@ -8,39 +11,56 @@ import termios
 import json
 import prettytable
 
+available_text_styles = {
+    'normal': '0', 'bold': '1', 'faint': '2', 'italic': '3', 'underline': '4',
+    'negative': '7', 'strikethrough': '9',
 
-# wrap has to be a parameter to allow these to be used as formatters.
-def red(text, wrap=None):
+    'black': '30', 'red': '31', 'green': '32', 'yellow': '33', 'blue': '34',
+    'magenta': '35', 'cyan': '36', 'white': '37',
+
+    'black-bg': '40', 'red-bg': '41', 'green-bg': '42', 'yellow-bg': '43',
+    'blue-bg': '44', 'magenta-bg': '45', 'cyan-bg': '46', 'white-bg': '47',
+
+    'black-bright': '90', 'red-bright': '91', 'green-bright': '92',
+    'yellow-bright': '93', 'blue-bright': '94', 'magenta-bright': '95',
+    'cyan-bright': '96', 'white-bright': '97',
+
+    'black-bg-bright': '40', 'red-bg-bright': '41', 'green-bg-bright': '42',
+    'yellow-bg-bright': '43', 'blue-bg-bright': '44',
+    'magenta-bg-bright': '45', 'cyan-bg-bright': '46', 'white-bg-bright': '47',
+}
+
+
+def style_text(text, styles):
+    """surround text with ANSI escape codes.
+
+    Depends on support in the terminal you are using.
+
+    :param text: Text to style
+    :param styles: list of styles
+    """
     if sys.stdout.isatty() and not os.getenv('ANSI_COLORS_DISABLED'):
-        text = '\033[31m%s\033[0m' % text
+        style_codes = []
+        for style in styles:
+            if style in available_text_styles:
+                style_codes.append(available_text_styles[style])
+        text = '\033[%sm%s\033[0m' % (";".join(style_codes), text)
     return text
 
 
-def print_red(text):
-    print(red(text))
+def print_styled(text, styles):
+    """print text with ANSI escape codes.
 
+    Depends on support in the terminal you are using.
 
-def yellow(text, wrap=None):
-    if sys.stdout.isatty() and not os.getenv('ANSI_COLORS_DISABLED'):
-        text = '\033[33m%s\033[0m' % text
-    return text
-
-
-def print_yellow(text):
-    print(yellow(text))
-
-
-def green(text, wrap=None):
-    if sys.stdout.isatty() and not os.getenv('ANSI_COLORS_DISABLED'):
-        text = '\033[32m%s\033[0m' % text
-    return text
-
-
-def print_green(text):
-    print(green(text))
+    :param text: Text to style
+    :param styles: list of styles
+    """
+    print(style_text(text, styles))
 
 
 def json_formatter(js, wrap=None):
+    """Formatter for json that can wrap it."""
     value = json.dumps(
         js, indent=2, ensure_ascii=False,
         separators=(', ', ': '))
@@ -64,16 +84,29 @@ def json_formatter(js, wrap=None):
     return value
 
 
-def text_wrap_formatter(d, wrap=None):
-    return '\n'.join(textwrap.wrap(d or '', wrap or 55))
+def text_wrap_formatter(text, wrap=None):
+    """formatter to wrap the text"""
+    return '\n'.join(textwrap.wrap(text or '', wrap or 55))
 
 
-def newline_list_formatter(r, wrap=None):
-    return '\n'.join(r or [])
+def newline_list_formatter(text_list, wrap=None):
+    """format list with newline for each element"""
+    return '\n'.join(text_list or [])
 
 
-def print_dict(d, formatters=None, wrap=None, titles=['Property', 'Value'],
-               sortby='Property'):
+def print_dict(dictionary, formatters=None, wrap=None,
+               titles=['Property', 'Value'], sortby='Property'):
+    """
+    Will print a prettytable of the given dict.
+
+    :param dictionary: dictionary to print
+    :param formatters: `dict` of callables for field formatting
+    :param warp: a width value to wrap for.
+    :param titles: Labels to use in the heading of the table, default to
+        ['Property', 'Value']
+    :param sortby: column of the table to sort by, defaults to 'Property'
+    .
+    """
     if not wrap:
         # 2 columns padded by 1 on each side = 4
         # 3 x '|' as border and separator = 3
@@ -81,7 +114,7 @@ def print_dict(d, formatters=None, wrap=None, titles=['Property', 'Value'],
         padding = 7
         # Now we need to find what the longest key is
         longest_key = 0
-        for key in d.keys():
+        for key in dictionary.keys():
             if len(key) > longest_key:
                 longest_key = len(key)
         # the wrap for the value column is based on
@@ -94,12 +127,60 @@ def print_dict(d, formatters=None, wrap=None, titles=['Property', 'Value'],
                                  caching=False, print_empty=False)
     pt.align = 'l'
 
-    for field in d.keys():
+    for field in dictionary.keys():
         if field in formatters:
-            value = formatters[field](d[field], wrap=wrap)
+            value = formatters[field](dictionary[field], wrap=wrap)
             pt.add_row([field, value])
         else:
-            value = textwrap.fill(str(d[field]), wrap)
+            value = textwrap.fill(str(dictionary[field]), wrap)
+            pt.add_row([field, value])
+    if sortby:
+        print(pt.get_string(sortby=sortby))
+    else:
+        print(pt.get_string())
+
+
+def print_object(obj, formatters=None, wrap=None,
+                 titles=['Property', 'Value'], sortby='Property'):
+    """
+    Will print a prettytable of the given object.
+
+    :param obj: object to print
+    :param formatters: `dict` of callables for field formatting
+    :param warp: a width value to wrap for.
+    :param titles: Labels to use in the heading of the table, default to
+        ['Property', 'Value']
+    :param sortby: column of the table to sort by, defaults to 'Property'
+    .
+    """
+    if not wrap:
+        # 2 columns padded by 1 on each side = 4
+        # 3 x '|' as border and separator = 3
+        # total non-content padding = 7
+        padding = 7
+        # Now we need to find what the longest key is
+        longest_key = 0
+        for key in obj.__dict__.keys():
+            if not key.startswith("_") and len(key) > longest_key:
+                longest_key = len(key)
+        # the wrap for the value column is based on
+        # what is left after we account for the padding
+        # and longest key
+        wrap = terminal_width() - padding - longest_key
+
+    formatters = formatters or {}
+    pt = prettytable.PrettyTable(titles,
+                                 caching=False, print_empty=False)
+    pt.align = 'l'
+
+    for field in obj.__dict__.keys():
+        if field.startswith("_"):
+            continue
+        if field in formatters:
+            value = formatters[field](getattr(obj, field), wrap=wrap)
+            pt.add_row([field, value])
+        else:
+            value = textwrap.fill(str(getattr(obj, field)), wrap)
             pt.add_row([field, value])
     if sortby:
         print(pt.get_string(sortby=sortby))
@@ -111,7 +192,7 @@ def print_list(objs, fields, formatters=None, sortby_index=None,
                mixed_case_fields=None, field_labels=None):
     """Print a list or objects as a table, one row per object.
 
-    :param objs: iterable of :class:`Resource`
+    :param objs: iterable of objects or dicts
     :param fields: attributes that correspond to columns, in order
     :param formatters: `dict` of callables for field formatting
     :param sortby_index: index of the field for sorting table rows
@@ -139,19 +220,19 @@ def print_list(objs, fields, formatters=None, sortby_index=None,
     for o in objs:
         row = []
         for field in fields:
-            if field in formatters:
-                row.append(formatters[field](o))
+            if field in mixed_case_fields:
+                field_name = field.replace(' ', '_')
             else:
-                if field in mixed_case_fields:
-                    field_name = field.replace(' ', '_')
-                else:
-                    field_name = field.lower().replace(' ', '_')
-                data = getattr(o, field_name, '')
-                if not data:
-                    try:
-                        data = o.get(field_name, '')
-                    except Exception:
-                        pass
+                field_name = field.lower().replace(' ', '_')
+            data = getattr(o, field_name, '')
+            if not data:
+                try:
+                    data = o.get(field_name, '')
+                except Exception:
+                    pass
+            if field in formatters:
+                row.append(formatters[field](data))
+            else:
                 row.append(data)
         pt.add_row(row)
 
@@ -193,30 +274,3 @@ def terminal_width():
         return columns
     except IOError:
         return None
-
-
-SKULL = """
-         ,,_,.-------.,_
-     ,;~'             '~;,
-   ,;                     ;,
-  ;                         ;
- ,'                         ',
-,;                           ;,
-; ;      .           .      ; ;
-| ;   ______       ______   ; |
-|  `~"      ~" . "~      "~'  |
-|  ~  ,-~~~^~, | ,~^~~~-,  ~  |
- |   |        }:{        |   |
- |   l       / | \       !   |
- .~  (__,.--" .^. "--.,__)  ~.
- |     ---;' / | \ `;---     |
-  \__.       \/^\/       .__/
-   V| \                 / |V
-    | |T~\___!___!___/~T| |
-    | |`IIII_I_I_I_IIII'| |
-    |  \,III I I I III,/  |
-     \   `~~~~~~~~~~'    /
-       \   .       .   /
-         \.    ^    ./
-           ^~~~^~~~^
-"""
