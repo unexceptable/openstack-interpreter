@@ -43,7 +43,7 @@ class SetupOpenStackInterpreter(command.Command):
         if "v2" in auth_url:
             print(
                 output.style_text("WARNING: ", ['yellow', 'bold']) +
-                output.print_styled(
+                output.style_text(
                     "You are using a deprecated Keystone version.\n"
                     "It is highly recommended that you switch to using v3\n"
                     "for your authentication.\n"
