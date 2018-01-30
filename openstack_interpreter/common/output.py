@@ -95,7 +95,7 @@ def newline_list_formatter(text_list, wrap=None):
 
 
 def print_dict(dictionary, formatters=None, wrap=None,
-               titles=['Property', 'Value'], sortby='Property'):
+               titles=['Property', 'Value'], sortby=None):
     """
     Will print a prettytable of the given dict.
 
@@ -107,6 +107,10 @@ def print_dict(dictionary, formatters=None, wrap=None,
     :param sortby: column of the table to sort by, defaults to 'Property'
     .
     """
+    if len(titles) != 2:
+        print_styled("Titles must exactly 2 values.", ['red'])
+    if not sortby:
+        sortby = titles[0]
     if not wrap:
         # 2 columns padded by 1 on each side = 4
         # 3 x '|' as border and separator = 3
