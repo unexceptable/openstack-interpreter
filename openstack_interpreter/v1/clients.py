@@ -51,19 +51,19 @@ class ClientManager(object):
     normal setup, and in some case constructor differences.
 
     To get a list of what services the ClientManager has been setup for:
-    In [1]: interpreter.clients.available_services
+    In [1]: oi.clients.available_services
 
     Default versions for services:
-    In [2]: interpreter.clients.available_services
+    In [2]: oi.clients.available_services
 
     To get a client (replace <service_type> with the service you want):
-    In [3]: interpreter.clients.<service_type>
+    In [3]: oi.clients.<service_type>
 
     Get novaclient in your configured region:
-    In [4]: novaclient = interpreter.clients.compute
+    In [4]: novaclient = oi.clients.compute
 
     Get novaclient in a specific region:
-    In [5]: novaclient = interpreter.clients.get_client(
+    In [5]: novaclient = oi.clients.get_client(
                 'compute', region="RegionOne")
 
     The python clients themselves have reasonably useful docstrings,
@@ -86,10 +86,10 @@ class ClientManager(object):
         Get an OpenStack client, in a given version, in a given region.
 
         examples:
-        In [1]: novaclient = interpreter.clients.get_client('compute')
-        In [2]: novaclient = interpreter.clients.get_client(
+        In [1]: novaclient = oi.clients.get_client('compute')
+        In [2]: novaclient = oi.clients.get_client(
                     'compute', region="RegionOne")
-        In [3]: novaclient = interpreter.clients.get_client(
+        In [3]: novaclient = oi.clients.get_client(
                     'compute', version="1")
         """
         try:

@@ -1,16 +1,16 @@
-pbr>=3.0.0
-babel!=2.4.0,>=2.3.4
+pbr>=3.1.1
+babel>=2.5.1
 
-keystoneauth1>=2.12.1
-osc-lib>=1.5.1
-openstacksdk>=0.9.5
-python-ceilometerclient>=2.6.1
-python-cinderclient>=1.9.0
-python-glanceclient>=2.5.0
-python-heatclient>=1.4.0
-python-keystoneclient>=3.5.0
-python-neutronclient>=6.0.0
-python-novaclient>=6.0.0
-python-openstackclient>=3.3.0 # Apache-2.0
-python-swiftclient>=2.2.0 # Apache-2.0
-ipython>=5.3.0
+keystoneauth1>=3.3.0
+osc-lib>=1.8.0
+openstacksdk>=0.11.1
+python-ceilometerclient==2.9.0
+python-cinderclient>=3.4.0
+python-glanceclient>=2.9.0
+python-heatclient>=1.13.0
+python-keystoneclient>=3.14.0
+python-neutronclient>=6.6.0
+python-novaclient>=9.1.1
+python-openstackclient>=3.13.0
+python-swiftclient>=3.4.0
+ipython>=5.5.0
