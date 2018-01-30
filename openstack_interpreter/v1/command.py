@@ -59,8 +59,6 @@ class SetupOpenStackInterpreter(command.Command):
 
     def take_action(self, parsed_args):
         self._check_auth_url()
-        interpreter = OpenStackInterpreter(
-            session=self.app.client_manager.session,
-            default_region=self.app.client_manager.region_name,
-        )
+        interpreter = OpenStackInterpreter(self) # noqa
+        oi = interpreter # noqa
         embed()

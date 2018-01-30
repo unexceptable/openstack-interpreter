@@ -1,6 +1,7 @@
 
-
 from openstack_interpreter.v1.clients import ClientManager
+from openstack_interpreter.v1.shade import ShadeManager
+from openstack_interpreter.v1.sdk import SDKManager
 
 
 class OpenStackInterpreter(object):
@@ -17,11 +18,19 @@ class OpenStackInterpreter(object):
       - clients
           The interpreter ClientManager. A useful construct to help
           you access all the various python clients.
+      - shade
+          The interpreter ShadeManager. A wrapper around the shade library.
+      - sdk
+          The interpreter SDKManager. A wrapper around the openstack sdk
+          with some helper functions for setup.
 
     """
 
-    def __init__(self, session, default_region):
-        self.session = session
+    def __init__(self, command):
+        self._session = command.app.client_manager.session
         self.clients = ClientManager(
-            session=session, default_region=default_region,
+            session=command.app.client_manager.session,
+            default_region=command.app.client_manager.region_name,
         )
+        self.shade = ShadeManager(config=command.app.cloud_config)
+        self.sdk = SDKManager(config=command.app.cloud)
