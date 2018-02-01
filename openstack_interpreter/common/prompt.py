@@ -14,6 +14,18 @@
 """
 This module is focused on adding a prompt to some action where you want to be
 able to have something stop, and ask for input before moving on.
+
+It is suggested you use tab autocomplete to list the available functions
+in this class, and inspect them for their docstrings.
+
+An example use case:
+In [1]: for server in oi.sdk.connection.compute.servers():
+...:     if server.status == "ERROR":
+...:         if prompt.prompt_yes_no(
+...:                 "Do you wish to delete server '%s'" % server.name):
+...:             server.delete()
+...:     else:
+...:         print(server.name)
 """
 
 

@@ -1,5 +1,11 @@
 """
-This module is all about text formatting and output. Make text pretty!
+This module is all about text formatting and output.
+
+It is suggested you use tab autocomplete to list the available functions
+in this class, and inspect them for their docstrings.
+
+E.g.:
+In [1]: output.print_styled?
 """
 
 from fcntl import ioctl
@@ -38,6 +44,8 @@ def style_text(text, styles):
 
     :param text: Text to style
     :param styles: list of styles
+                   For available style see:
+                   In [1]: output.available_text_styles?
     """
     if sys.stdout.isatty() and not os.getenv('ANSI_COLORS_DISABLED'):
         style_codes = []
@@ -55,6 +63,8 @@ def print_styled(text, styles):
 
     :param text: Text to style
     :param styles: list of styles
+                   For available style see:
+                   In [1]: output.available_text_styles?
     """
     print(style_text(text, styles))
 
@@ -157,6 +167,13 @@ def print_object(obj, formatters=None, wrap=None,
     :param sortby: column of the table to sort by, defaults to 'Property'
     .
     """
+
+    fields = []
+    for field in dir(obj):
+        if field.startswith("_") or callable(getattr(obj, field)):
+            continue
+        fields.append(field)
+
     if not wrap:
         # 2 columns padded by 1 on each side = 4
         # 3 x '|' as border and separator = 3
@@ -164,7 +181,7 @@ def print_object(obj, formatters=None, wrap=None,
         padding = 7
         # Now we need to find what the longest key is
         longest_key = 0
-        for key in obj.__dict__.keys():
+        for key in fields:
             if not key.startswith("_") and len(key) > longest_key:
                 longest_key = len(key)
         # the wrap for the value column is based on
@@ -177,9 +194,7 @@ def print_object(obj, formatters=None, wrap=None,
                                  caching=False, print_empty=False)
     pt.align = 'l'
 
-    for field in obj.__dict__.keys():
-        if field.startswith("_"):
-            continue
+    for field in fields:
         if field in formatters:
             value = formatters[field](getattr(obj, field), wrap=wrap)
             pt.add_row([field, value])
