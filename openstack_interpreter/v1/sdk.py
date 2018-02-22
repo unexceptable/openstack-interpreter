@@ -1,6 +1,17 @@
 from openstack import connection
 
 
+DEFAULT_KWARGS = {
+    'compute_api_version': "2",
+    'identity_api_version': "3",
+    'image_api_version': "2",
+    'metering_api_version': "2",
+    'network_api_version': "2",
+    'orchestration_api_version': "1",
+    'volume_api_version': "2",
+}
+
+
 class SDKManager(object):
     """A wrapper around the openstackSDK
 
@@ -33,7 +44,8 @@ class SDKManager(object):
     """
 
     def __init__(self, session):
-        self.connection = connection.Connection(session=session)
+        self.connection = connection.Connection(
+            session=session, **DEFAULT_KWARGS)
         self._session = session
 
     def get_connection(self, **kwargs):
@@ -56,4 +68,7 @@ class SDKManager(object):
         In [2]: conn_c1 = oi.sdk.get_connection(
                     compute_api_version='2')
         """
-        return connection.Connection(session=self._session, **kwargs)
+        new_kwargs = dict(DEFAULT_KWARGS)
+        new_kwargs.update(kwargs)
+
+        return connection.Connection(session=self._session, **new_kwargs)
