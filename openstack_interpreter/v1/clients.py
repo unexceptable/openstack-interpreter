@@ -22,7 +22,7 @@ DEFAULT_SERVICE_VERSIONS = {
 
 # a wrapper to facilitate ease of use and avoid the inconsistency
 # compared to other client constructors.
-def swift_constructor(session, region_name):
+def swift_constructor(version, session, region_name):
     return swiftclient.Connection(
         os_options={'region_name': region_name},
         session=session)
