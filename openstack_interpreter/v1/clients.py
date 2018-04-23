@@ -16,6 +16,7 @@ DEFAULT_SERVICE_VERSIONS = {
     'network': "2",
     'orchestration': "1",
     'volume': "2",
+    'object-store': "1",
 }
 
 
