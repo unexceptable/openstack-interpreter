@@ -25,9 +25,12 @@ class OpenStackInterpreter(object):
     """
 
     def __init__(self, command):
-        self._session = command.app.client_manager.session
+        self.session = command.app.client_manager.session
         self.clients = ClientManager(
-            session=self._session,
+            session=self.session,
             default_region=command.app.client_manager.region_name,
         )
-        self.sdk = SDKManager(session=self._session)
+        self.sdk = SDKManager(
+            session=self.session,
+            default_region=command.app.client_manager.region_name,
+        )

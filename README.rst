@@ -42,21 +42,21 @@ To get some basic help you can start with:
 
 ::
 
-    In [1]: interpreter?
+    In [1]: oi?
 
-Or if you want to get and start using the clients, this is how you can get
-acess to novaclient:
-
-::
-
-    In [2]: novaclient = interpreter.clients.compute
-
-Or if you want novaclient in a region other than your configured one:
+Or if you want to get and start using the sdk, this is how you can get
+access to it:
 
 ::
 
-    In [2]: novaclient = interpreter.clients.get_client(
-       ...:     'compute', region='RegionOne')
+    In [2]: conn = oi.sdk.connection
+
+Or if you want the sdk connection in a region other than your configured or
+default one:
+
+::
+
+    In [2]: conn = oi.sdk.get_connection(region_name='RegionOne')
 
 
 Additional inbuilt tools
@@ -76,90 +76,86 @@ not always be the case) you can do the following:
 
 ::
 
-    In [3]: servers = novaclient.servers.list()
+    servers = list(conn.compute.servers())
 
-    In [4]: server = servers[0]
-
-    In [5]: output.print_dict(server.to_dict())
+    output.print_dict(servers[0].to_dict())
 
 Or just print the object itself, since it may not have to_dict anyway:
 
 ::
 
-    In [5]: output.print_object(server)
+    output.print_object(servers[0])
 
 Although some of the fields may be dicts and this harder to read, so we'd like
 to format them a little:
 
 ::
 
-    In [5]: output.print_object(
-       ...:     servers[0], formatters={
-       ...:         'addresses': output.json_formatter,
-       ...:         'flavor': output.json_formatter,
-       ...:         'image': output.json_formatter,
-       ...:         'links': output.json_formatter})
+    output.print_object(
+        servers[0], formatters={
+            'addresses': output.json_formatter,
+            'flavor': output.json_formatter,
+            'image': output.json_formatter,
+            'links': output.json_formatter})
 
 Or maybe you're looking at a list of resources, and you only care about certain
 fields:
 
 ::
 
-    In [4]: output.print_list(servers, ["name", "id", "status"])
+    output.print_list(servers, ["name", "id", "status"])
 
 You can even format lists, although be careful as listing does not auto wrap
 properly yet:
 
 ::
 
-    In [4]: output.print_list(
-       ...:     servers, ['name', 'status', 'addresses'],
-       ...:         formatters={'addresses': output.json_formatter})
+    output.print_list(
+        servers, ['name', 'status', 'addresses'],
+            formatters={'addresses': output.json_formatter})
 
 Or maybe you are looking at a lot of data and want to highlight something:
 
 ::
 
-    In [5]: rows = []
+    rows = []
 
-    In [6]: for server in servers:
-       ...:     if server.status == "ACTIVE":
-       ...:         rows.append([
-       ...:             server.name, server.id,
-                        output.style_text(server.status, ['green', 'bold'])
-       ...:         ])
-       ...:     elif server.status == "ERROR":
-       ...:         rows.append([
-       ...:             server.name, server.id,
-                        output.style_text(server.status, ['red', 'bold'])
-       ...:         ])
-       ...:     else:
-       ...:         rows.append([server.name, server.id, server.status])
+    for server in servers:
+        if server.status == "ACTIVE":
+            rows.append([
+                server.name, server.id,
+                output.style_text(server.status, ['green', 'bold'])
+            ])
+        elif server.status == "ERROR":
+            rows.append([
+                server.name, server.id,
+                output.style_text(server.status, ['red', 'bold'])
+            ])
+        else:
+            rows.append([server.name, server.id, server.status])
 
-    In [7]: output.print_list_rows(rows, ["name", "id", "status"])
+    output.print_list_rows(rows, ["name", "id", "status"])
 
 Or want to delete a ton of instances, but want ones with certain names (or
 maybe even tags) to ask for a prompt first:
 
 ::
 
-    In [3]: servers = novaclient.servers.list()
-
-    In [4]: for server in servers:
-       ...:     if "prod" in server.name:
-       ...:         output.print_object(server)
-       ...:         if prompt.prompt_yes_no(
-       ...:                 "Are you sure you want to delete this?"):
-       ...:             server.delete()
-       ...:     else:
-       ...:         server.delete()
+    for server in conn.compute.servers():
+        if "prod" in server.name:
+            output.print_object(server)
+            if prompt.prompt_yes_no(
+                    "Are you sure you want to delete this?"):
+                server.delete()
+        else:
+            server.delete()
 
 Or maybe you're just curious how long it takes to run something:
 
 ::
 
-    In [3]: with timed("listing servers"):
-       ...:     servers = novaclient.servers.list()
+    with timed("listing servers"):
+        servers = list(conn.compute.servers())
 
 Useful patterns
 ---------------
@@ -168,24 +164,18 @@ Get my servers (or any resource) across all regions:
 
 ::
 
-    In [1]: keystone = interpreter.clients.identity
+    servers = {}
 
-    In [2]: servers = {}
-
-    In [3]: for region in keystone.regions.list():
-       ...:     servers[region.id] = interpreter.clients.get_client(
-       ...:         "compute", region=region.id).servers.list()
+    for region in conn.identity.regions():
+        servers[region.id] = list(oi.sdk.get_connection(
+            region_name=region.id).compute.servers())
 
 Development
 -----------
 
-Going forward the plan is to add support for OpenStackSDK, and Shade (if I can
-find a way to connect it and reuse parts of the same session).
-
-In addition I also want to add more help functionality as is possible.
-
-Adding support for new clients is easy. If you have a client you want added,
-make a pull request, or open an issue.
+I want to add more help functionality as is possible, hopefully even something
+that is interactive such as a tutorial.
 
 I may be moving this project to OpenStack's gerrit, but in part I'd prefer not
-to as the interface for gerrit is awful.
+to as the interface for gerrit is awful, although I may end up moving this to
+gitlab, adding some tests and a build via gitlab runners.

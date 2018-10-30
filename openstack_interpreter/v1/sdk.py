@@ -43,9 +43,9 @@ class SDKManager(object):
           In [1]: oi.sdk.get_connection?
     """
 
-    def __init__(self, session):
+    def __init__(self, session, default_region):
         self.connection = connection.Connection(
-            session=session, **DEFAULT_KWARGS)
+            session=session, region_name=default_region, **DEFAULT_KWARGS)
         self._session = session
 
     def get_connection(self, **kwargs):
@@ -64,7 +64,7 @@ class SDKManager(object):
             - <service_type>_api_version
 
         examples:
-        In [1]: conn_r2 = oi.sdk.get_connection(region='RegionTwo')
+        In [1]: conn_r2 = oi.sdk.get_connection(region_name='RegionTwo')
         In [2]: conn_c1 = oi.sdk.get_connection(
                     compute_api_version='2')
         """
