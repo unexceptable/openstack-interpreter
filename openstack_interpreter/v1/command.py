@@ -1,4 +1,6 @@
-from IPython import embed
+from IPython import embed as _embed
+from traitlets.config import Config as _Config
+
 
 from osc_lib.command import command
 
@@ -106,4 +108,8 @@ class SetupOpenStackInterpreter(command.Command):
         interpreter = OpenStackInterpreter(self) # noqa
         oi = interpreter # noqa
         print(welcome_msg)
-        embed()
+
+        _c = _Config()
+        _c.InteractiveShellEmbed.colors = 'neutral'
+        _c.InteractiveShellEmbed.highlighting_style = 'default'
+        _embed(config=_c)
