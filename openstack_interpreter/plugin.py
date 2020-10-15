@@ -33,5 +33,5 @@ def build_option_parser(parser):
             default=DEFAULT_OS_INTERPRETER_VERSION),
         help=('Client version, default=' +
               DEFAULT_OS_INTERPRETER_VERSION + ' ' +
-              str'(Env: OS_INTERPRETER_VERSION)')))
+              str('(Env: OS_INTERPRETER_VERSION)'))
     return parser
